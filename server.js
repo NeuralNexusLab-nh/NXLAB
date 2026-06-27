@@ -329,7 +329,7 @@ const apifunc = {
 
   "wttr": (reqo, resp, data) => {
     const city = data.trim();
-    fetch(`https://wttr.in/${city}?An`)
+    fetch(`https://wttr.in/${city}?nT`)
       .then((res) => {
         return res.text();
       })
