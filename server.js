@@ -29,33 +29,28 @@ app.use((req, res, next) => {
 
 const apifunc = {
   "help": (reqo, resp, data) => {
-      resp.send("Info page: https://nxlab.nett.to/info");
+    resp.send("Info page: https://nxlab.nett.to/info");
   },
   
-  // 1. IP 查詢
   "ip": (reqo, resp, data) => {
     const clientIp = reqo.ip;
     resp.send(clientIp);
   },
 
-  // 2. 文字回顯 (Echo) - 直接回傳原始資料，由前端 textContent 安全渲染
   "echo": (reqo, resp, data) => {
     resp.send(data);
   },
 
-  // 3. Base64 編碼
   "base64ec": (reqo, resp, data) => {
     const encoded = Buffer.from(data).toString("base64");
     resp.send(encoded);
   },
 
-  // 4. Base64 解碼 - 直接回傳原始資料
   "base64dc": (reqo, resp, data) => {
     const decoded = Buffer.from(data, "base64").toString("utf-8");
     resp.send(decoded);
   },
 
-  // 5. HTTP 探測 (預設 HTTPS，失敗自動降級 HTTP) - 不再進行 escapeHtml
   "http": (reqo, resp, data) => {
     let url = data.trim();
     if (!url) {
@@ -100,7 +95,6 @@ const apifunc = {
     executeFetch(url, !hasProtocol);
   },
 
-  // 6. TCP 連線測試
   "tcp": (reqo, resp, data) => {
     const parts = data.trim().split(/\s+/);
     const host = parts[0];
@@ -135,7 +129,6 @@ const apifunc = {
     });
   },
 
-  // 7. UDP 封包發送
   "udp": (reqo, resp, data) => {
     const parts = data.trim().split(/\s+/);
     const host = parts[0];
@@ -166,7 +159,6 @@ const apifunc = {
     });
   },
 
-  // 8. 數學：加法
   "sum": (reqo, resp, data) => {
     const parts = data.trim().split(/\s+/);
     const num1 = parseFloat(parts[0]);
@@ -181,7 +173,6 @@ const apifunc = {
     resp.send(result.toString());
   },
 
-  // 9. 數學：減法
   "subtract": (reqo, resp, data) => {
     const parts = data.trim().split(/\s+/);
     const num1 = parseFloat(parts[0]);
@@ -196,7 +187,6 @@ const apifunc = {
     resp.send(result.toString());
   },
 
-  // 10. 數學：乘法
   "multiply": (reqo, resp, data) => {
     const parts = data.trim().split(/\s+/);
     const num1 = parseFloat(parts[0]);
@@ -211,7 +201,6 @@ const apifunc = {
     resp.send(result.toString());
   },
 
-  // 11. 數學：除法
   "divide": (reqo, resp, data) => {
     const parts = data.trim().split(/\s+/);
     const num1 = parseFloat(parts[0]);
@@ -231,7 +220,6 @@ const apifunc = {
     resp.send(result.toString());
   },
 
-  // 12. 數學：次方
   "power": (reqo, resp, data) => {
     const parts = data.trim().split(/\s+/);
     const base = parseFloat(parts[0]);
@@ -246,19 +234,22 @@ const apifunc = {
     resp.send(result.toString());
   },
 
-  // 13. 加密：MD5
   "md5": (reqo, resp, data) => {
     const crypto = require("crypto");
     const hash = crypto.createHash("md5").update(data).digest("hex");
     resp.send(hash);
   },
 
-  // 15. 網路：DNS Lookup (原生 dns 模組，不依賴系統 nslookup，100% 免疫 Command Injection)
   "nslookup": (reqo, resp, data) => {
     const host = data.trim().split(/\s+/)[0];
 
     if (!host) {
       resp.send("Error: Usage is 'nslookup [host]'");
+      return;
+    }
+
+    if (!isSafeHost(host)) {
+      resp.send("Error: Access Denied. Host contains illegal characters.");
       return;
     }
 
@@ -272,7 +263,6 @@ const apifunc = {
     });
   },
 
-  // 16. 輔助：Textarea 視覺框 (包裝原始資料)
   "textarea": (reqo, resp, data) => {
     if (!data) {
       resp.send("Error: Usage is 'textarea [text]'");
@@ -284,6 +274,94 @@ const apifunc = {
     });
     const output = `${border}\n${paddedLines.join("\n")}\n${border}`;
     resp.send(output);
+  },
+
+  "jwt": (reqo, resp, data) => {
+    const parts = data.trim().split(".");
+    if (parts.length !== 3) {
+      resp.send("Error: Invalid JWT token format.");
+      return;
+    }
+    try {
+      const header = Buffer.from(parts[0], "base64").toString("utf-8");
+      const payload = Buffer.from(parts[1], "base64").toString("utf-8");
+      const formattedHeader = JSON.stringify(JSON.parse(header), null, 2);
+      const formattedPayload = JSON.stringify(JSON.parse(payload), null, 2);
+      resp.send(`[Header]\n${formattedHeader}\n\n[Payload]\n${formattedPayload}`);
+    } catch (err) {
+      resp.send(`JWT Decode Error: ${err.message}`);
+    }
+  },
+
+  "passwd": (reqo, resp, data) => {
+    const len = parseInt(data.trim(), 10) || 16;
+    if (len < 4 || len > 1024) {
+      resp.send("Error: Password length must be between 4 and 1024.");
+      return;
+    }
+    const crypto = require("crypto");
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=";
+    let password = "";
+    const bytes = crypto.randomBytes(len);
+    for (let i = 0; i < len; i++) {
+      password += chars[bytes[i] % chars.length];
+    }
+    resp.send(password);
+  },
+
+  "hexec": (reqo, resp, data) => {
+    const hex = Buffer.from(data).toString("hex");
+    resp.send(hex);
+  },
+
+  "hexdc": (reqo, resp, data) => {
+    try {
+      const decoded = Buffer.from(data, "hex").toString("utf-8");
+      resp.send(decoded);
+    } catch (err) {
+      resp.send(`Hex Decode Error: ${err.message}`);
+    }
+  },
+
+  "ipinfo": (reqo, resp, data) => {
+    const ip = data.trim();
+    if (ip && !isSafeHost(ip)) {
+      resp.send("Error: Invalid IP address format.");
+      return;
+    }
+    fetch(`http://ip-api.com/json/${ip}`)
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        if (json.status === "fail") {
+          resp.send(`IP Info Error: ${json.message}`);
+          return;
+        }
+        const output = `[IP] ${json.query}\n[Country] ${json.country} (${json.countryCode})\n[Region] ${json.regionName}\n[City] ${json.city}\n[ISP] ${json.isp}\n[ASN] ${json.as}`;
+        resp.send(output);
+      })
+      .catch((err) => {
+        resp.send(`IP Info Connection Failed: ${err.message}`);
+      });
+  },
+
+  "wttr": (reqo, resp, data) => {
+    const city = data.trim();
+    if (city && !isSafeHost(city)) {
+      resp.send("Error: Invalid location format.");
+      return;
+    }
+    fetch(`https://wttr.in/${city}?An`)
+      .then((res) => {
+        return res.text();
+      })
+      .then((text) => {
+        resp.send(text);
+      })
+      .catch((err) => {
+        resp.send(`Weather Lookup Failed: ${err.message}`);
+      });
   }
 };
 
