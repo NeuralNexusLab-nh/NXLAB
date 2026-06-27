@@ -28,6 +28,10 @@ app.use((req, res, next) => {
 // ==================== API 核心功能對照表 ====================
 
 const apifunc = {
+  "help": (reqo, resp, data) => {
+      resp.send("Info page: https://nxlab.nett.to/info");
+  },
+  
   // 1. IP 查詢
   "ip": (reqo, resp, data) => {
     const clientIp = reqo.ip;
