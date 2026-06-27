@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>INFORMATION // NXLAB CONSOLE</title>
+  <title>MANUAL // NXLAB CONSOLE</title>
   <style>
     :root {
       --neon-green: #00ff66;
@@ -28,12 +28,11 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between; /* Keeps footer at bottom */
+      justify-content: space-between;
       position: relative;
       padding: 40px 20px 20px 20px;
     }
 
-    /* CRT Scanline Overlay */
     body::before {
       content: " ";
       display: block;
@@ -45,7 +44,6 @@
       pointer-events: none;
     }
 
-    /* Screen Flicker Animation */
     @keyframes flicker {
       0% { opacity: 0.98; }
       50% { opacity: 1; }
@@ -56,7 +54,6 @@
       animation: flicker 0.15s infinite;
     }
 
-    /* Top Right Logo (>_) */
     .logo-container {
       position: absolute;
       top: 20px;
@@ -86,10 +83,9 @@
       100% { transform: scale(1.05); opacity: 1; }
     }
 
-    /* Main Container */
     .container {
       width: 100%;
-      max-width: 950px;
+      max-width: 850px;
       padding: 10px;
       opacity: 0;
       transform: translateY(30px);
@@ -105,7 +101,7 @@
     }
 
     header {
-      margin-bottom: 40px;
+      margin-bottom: 30px;
       text-align: center;
     }
 
@@ -123,69 +119,147 @@
       font-size: 1rem;
     }
 
-    /* Terminal Block for Documentation */
-    .doc-terminal {
+    /* Interactive Search Box */
+    .search-container {
+      margin-bottom: 25px;
+      width: 100%;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 15px;
       background: var(--terminal-bg);
       border: 1px solid var(--neon-blue);
-      border-radius: 8px;
-      padding: 30px;
-      box-shadow: 0 0 20px rgba(0, 229, 255, 0.05);
-      margin-bottom: 30px;
-    }
-
-    .doc-section-title {
-      color: var(--neon-blue);
-      font-size: 1.4rem;
-      margin-bottom: 15px;
-      border-bottom: 1px dashed rgba(0, 229, 255, 0.3);
-      padding-bottom: 8px;
-    }
-
-    .command-list {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      margin-bottom: 25px;
-    }
-
-    /* Command Row with glowing effect on hover */
-    .command-row {
-      display: flex;
-      flex-direction: column;
-      background: rgba(5, 12, 28, 0.5);
-      border: 1px solid rgba(0, 229, 255, 0.15);
-      padding: 15px;
-      border-radius: 4px;
+      color: var(--neon-green);
+      font-family: var(--font-stack);
+      font-size: 1rem;
+      outline: none;
+      border-radius: 6px;
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.05);
       transition: all 0.3s ease;
     }
 
-    .command-row:hover {
+    .search-input:focus {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 20px rgba(0, 255, 102, 0.15);
+    }
+
+    /* Accordion Grid Area */
+    .accordion {
+      margin-bottom: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .cmd-card {
+      background: var(--terminal-bg);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: 6px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .cmd-card:hover {
+      border-color: rgba(0, 229, 255, 0.5);
+    }
+
+    .cmd-card.active {
       border-color: var(--neon-green);
       box-shadow: 0 0 15px rgba(0, 255, 102, 0.15);
-      transform: translateX(5px);
     }
 
-    .cmd-name {
-      color: var(--neon-blue);
+    .cmd-header {
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .cmd-title {
       font-size: 1.1rem;
       font-weight: bold;
-      margin-bottom: 5px;
+      color: var(--neon-blue);
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
-    .command-row:hover .cmd-name {
+    .cmd-card.active .cmd-title {
       color: var(--neon-green);
+    }
+
+    .cmd-indicator {
+      font-size: 1.2rem;
+      color: var(--neon-blue);
+      font-weight: bold;
+      transition: transform 0.3s;
+    }
+
+    .cmd-card.active .cmd-indicator {
+      color: var(--neon-green);
+    }
+
+    /* Hidden Drawer Content */
+    .cmd-content {
+      max-height: 0;
+      overflow: hidden;
+      padding: 0 15px;
+      transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+      background: rgba(0, 0, 0, 0.2);
     }
 
     .cmd-desc {
       color: #a0c0b0;
       font-size: 0.9rem;
       line-height: 1.4;
-      margin-bottom: 8px;
+      margin-bottom: 15px;
     }
 
-    .cmd-usage {
-      color: rgba(0, 229, 255, 0.6);
-      font-size: 0.8rem;
+    .code-section {
+      margin-bottom: 12px;
+    }
+
+    .code-label {
+      font-size: 0.75rem;
+      color: var(--neon-blue);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .code-block {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(0, 229, 255, 0.1);
+      padding: 10px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    .code-text {
+      color: #70a0a0;
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      padding: 4px 10px;
+      background: transparent;
+      border: 1px solid var(--neon-blue);
+      color: var(--neon-blue);
+      font-family: var(--font-stack);
+      font-size: 0.75rem;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .copy-btn:hover {
+      background: rgba(0, 229, 255, 0.1);
+      color: #fff;
     }
 
     /* Back Home Button */
@@ -210,10 +284,9 @@
       border-color: var(--neon-blue);
       color: var(--neon-blue);
       box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
-      transform: translateY(-2px);
+      transform: translateX(-5px);
     }
 
-    /* Footer Copyright NeuralNexusLab */
     footer {
       width: 100%;
       text-align: center;
@@ -234,105 +307,568 @@
 
   <div class="container">
     <header>
-      <h1>CORE COMMANDS MANUAL</h1>
-      <p class="subtitle">Complete reference manual for NXLAB Console v1.0.0 hosted on nxlab.nett.to</p>
+      <h1>COMMAND MANUAL</h1>
+      <p class="subtitle">Complete functional reference for NXLAB Console (nxlab.nett.to)</p>
     </header>
 
-    <div class="doc-terminal">
-      <!-- Network Section -->
-      <h2 class="doc-section-title">// NETWORK UTILITIES</h2>
-      <div class="command-list">
-        <div class="command-row">
-          <div class="cmd-name">ip</div>
-          <div class="cmd-desc">Retrieve the client's public IP address as recorded by the server node.</div>
-          <div class="cmd-usage">Usage: ip</div>
+    <!-- Interactive Search Box -->
+    <div class="search-container">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search commands or descriptions..." autocomplete="off">
+    </div>
+
+    <!-- Collapsible Command Manual Grid -->
+    <div class="accordion" id="manualAccordion">
+      
+      <!-- help -->
+      <div class="cmd-card" data-title="help">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">help</span>
+          <span class="cmd-indicator">+</span>
         </div>
-        <div class="command-row">
-          <div class="cmd-name">http</div>
-          <div class="cmd-desc">Sends an HTTP request to the designated host. Defaults to secure HTTPS. Automatically falls back to standard HTTP if secure handshake fails.</div>
-          <div class="cmd-usage">Usage: http [url_or_domain]</div>
-        </div>
-        <div class="command-row">
-          <div class="cmd-name">tcp</div>
-          <div class="cmd-desc">Attempts to open a direct raw TCP socket stream to a specified host and port to check port availability. Timeout at 3000ms.</div>
-          <div class="cmd-usage">Usage: tcp [host] [port]</div>
-        </div>
-        <div class="command-row">
-          <div class="cmd-name">udp</div>
-          <div class="cmd-desc">Dispatches an arbitrary UDP datagram containing a custom text payload to a targeted remote port.</div>
-          <div class="cmd-usage">Usage: udp [host] [port] [message_payload]</div>
-        </div>
-        <div class="command-row">
-          <div class="cmd-name">nslookup</div>
-          <div class="cmd-desc">Performs high-speed DNS hostname resolution utilizing Node's native lookup bindings. No sub-process execution.</div>
-          <div class="cmd-usage">Usage: nslookup [domain]</div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Retrieves the documentation manual endpoint for all console operations.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">help</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">help</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Security / Crypto Section -->
-      <h2 class="doc-section-title">// CRYPTO & ENCODING</h2>
-      <div class="command-list">
-        <div class="command-row">
-          <div class="cmd-name">base64ec</div>
-          <div class="cmd-desc">Converts raw text into a Base64-encoded string representation.</div>
-          <div class="cmd-usage">Usage: base64ec [raw_text_payload]</div>
+      <!-- ip -->
+      <div class="cmd-card" data-title="ip">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">ip</span>
+          <span class="cmd-indicator">+</span>
         </div>
-        <div class="command-row">
-          <div class="cmd-name">base64dc</div>
-          <div class="cmd-desc">Decodes a valid Base64 string back into standard human-readable format. Output is sanitarily escaped.</div>
-          <div class="cmd-usage">Usage: base64dc [base64_encoded_payload]</div>
-        </div>
-        <div class="command-row">
-          <div class="cmd-name">md5</div>
-          <div class="cmd-desc">Generates a secure 128-bit cryptographic MD5 hash signature of the input text payload.</div>
-          <div class="cmd-usage">Usage: md5 [text_to_hash]</div>
-        </div>
-      </div>
-
-      <!-- Math Section -->
-      <h2 class="doc-section-title">// MATHEMATICAL ENGINE</h2>
-      <div class="command-list">
-        <div class="command-row">
-          <div class="cmd-name">sum</div>
-          <div class="cmd-desc">Performs floating-point addition of two input arguments.</div>
-          <div class="cmd-usage">Usage: sum [num1] [num2]</div>
-        </div>
-        <div class="command-row">
-          <div class="cmd-name">subtract</div>
-          <div class="cmd-desc">Performs floating-point subtraction of the second argument from the first.</div>
-          <div class="cmd-usage">Usage: subtract [num1] [num2]</div>
-        </div>
-        <div class="command-row">
-          <div class="cmd-name">multiply</div>
-          <div class="cmd-desc">Performs floating-point multiplication of two input arguments.</div>
-          <div class="cmd-usage">Usage: multiply [num1] [num2]</div>
-        </div>
-        <div class="command-row">
-          <div class="cmd-name">divide</div>
-          <div class="cmd-desc">Performs floating-point division. Division by zero is rejected.</div>
-          <div class="cmd-usage">Usage: divide [num1] [num2]</div>
-        </div>
-        <div class="command-row">
-          <div class="cmd-name">power</div>
-          <div class="cmd-desc">Raises a base floating-point number to the power of the specified exponent.</div>
-          <div class="cmd-usage">Usage: power [base] [exponent]</div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Displays your public client IP address as detected by the central hosting server.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">ip</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">ip</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- General Section -->
-      <h2 class="doc-section-title">// UTILITIES</h2>
-      <div class="command-list">
-        <div class="command-row">
-          <div class="cmd-name">echo</div>
-          <div class="cmd-desc">Echoes back the entered text payload. Output is safely sanitized.</div>
-          <div class="cmd-usage">Usage: echo [message]</div>
+      <!-- echo -->
+      <div class="cmd-card" data-title="echo">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">echo</span>
+          <span class="cmd-indicator">+</span>
         </div>
-        <div class="command-row">
-          <div class="cmd-name">textarea</div>
-          <div class="cmd-desc">Formats multi-line or single-line text output neatly inside a retro terminal ASCII mockup box.</div>
-          <div class="cmd-usage">Usage: textarea [your_custom_text]</div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Echoes back entered text. Output is rendered directly without HTML execution.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">echo [message]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">echo CyberSecurity_Ready</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- base64ec -->
+      <div class="cmd-card" data-title="base64ec">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">base64ec</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Encodes standard ASCII strings into cryptographically stable Base64 strings.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">base64ec [raw_text]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">base64ec helloworld</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- base64dc -->
+      <div class="cmd-card" data-title="base64dc">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">base64dc</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Decodes valid Base64 encoded payloads back into standard string formatting.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">base64dc [encoded_payload]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">base64dc aGVsbG93b3JsZA==</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- http -->
+      <div class="cmd-card" data-title="http">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">http</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Inspects secure endpoints. Defaults to HTTPS with silent auto-fallback to HTTP on link errors.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">http [url_or_domain]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">http google.com</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- tcp -->
+      <div class="cmd-card" data-title="tcp">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">tcp</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Probes raw TCP ports to evaluate port listening state. Strict 3000ms socket timeout.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">tcp [host] [port]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">tcp 1.1.1.1 53</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- udp -->
+      <div class="cmd-card" data-title="udp">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">udp</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Sends standard UDP datagram payloads directly to targeted sockets.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">udp [host] [port] [message]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">udp 8.8.8.8 53 DNS_Query</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- sum -->
+      <div class="cmd-card" data-title="sum">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">sum</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Calculates mathematical addition of two input float values.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">sum [num1] [num2]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">sum 41.5 0.5</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- subtract -->
+      <div class="cmd-card" data-title="subtract">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">subtract</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Performs basic float subtraction (num1 minus num2).</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">subtract [num1] [num2]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">subtract 100 42</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- multiply -->
+      <div class="cmd-card" data-title="multiply">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">multiply</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Performs mathematical multiplication of two float variables.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">multiply [num1] [num2]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">multiply 6 7</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- divide -->
+      <div class="cmd-card" data-title="divide">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">divide</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Performs float division. Division operations by zero are safely rejected.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">divide [num1] [num2]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">divide 84 2</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- power -->
+      <div class="cmd-card" data-title="power">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">power</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Raises base numbers to designated floating-point exponential powers.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">power [base] [exponent]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">power 2 10</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- md5 -->
+      <div class="cmd-card" data-title="md5">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">md5</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Constructs a 128-bit cryptographic MD5 hash signature of input variables.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">md5 [payload_text]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">md5 admin_auth_token</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- nslookup -->
+      <div class="cmd-card" data-title="nslookup">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">nslookup</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Resolves domain names utilizing secure native DNS routing bindings.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">nslookup [domain]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">nslookup nett.to</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- textarea -->
+      <div class="cmd-card" data-title="textarea">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">textarea</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Packages raw multi-line strings securely inside a neat ASCII border console frame.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">textarea [content]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">textarea Embedded Terminal\nMultiline_Rendering</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- jwt -->
+      <div class="cmd-card" data-title="jwt">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">jwt</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Decodes JWT string segments (Header and Payload) into pretty formatted raw JSON.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">jwt [token_string]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">jwt eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- passwd -->
+      <div class="cmd-card" data-title="passwd">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">passwd</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Generates highly secure random passwords utilizing crypto entropy. Custom length boundary (4 to 1024, default is 16).</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">passwd [length]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">passwd 24</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- hexec -->
+      <div class="cmd-card" data-title="hexec">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">hexec</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Converts raw strings into standard lowercase Hexadecimal format.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">hexec [text]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">hexec nxlab_console</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- hexdc -->
+      <div class="cmd-card" data-title="hexdc">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">hexdc</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Decodes valid hexadecimal encoded strings back to raw string format.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">hexdc [hex_string]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">hexdc 6e786c61625f636f6e736f6c65</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ipinfo -->
+      <div class="cmd-card" data-title="ipinfo">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">ipinfo</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Gathers geographical, network ASN, routing ISP and country telemetry of target IP via geoip pipeline.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">ipinfo [ip]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">ipinfo 8.8.8.8</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- wttr -->
+      <div class="cmd-card" data-title="wttr">
+        <div class="cmd-header" onclick="toggleCard(this)">
+          <span class="cmd-title">wttr</span>
+          <span class="cmd-indicator">+</span>
+        </div>
+        <div class="cmd-content">
+          <p class="cmd-desc">Queries high fidelity text-based weather forecasting metrics for designated geographical regions.</p>
+          <div class="code-section">
+            <div class="code-label">Usage:</div>
+            <div class="code-block">
+              <span class="code-text">wttr [location]</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+          <div class="code-section">
+            <div class="code-label">Example:</div>
+            <div class="code-block">
+              <span class="code-text">wttr London</span>
+              <button class="copy-btn" onclick="copyText(this)">COPY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Back to Terminal -->
@@ -341,10 +877,87 @@
     </div>
   </div>
 
-  <!-- Global Footer -->
   <footer>
     &copy; 2026 NeuralNexusLab. All rights reserved.
   </footer>
 
+  <script>
+    // Toggle active accordion cards smoothly
+    function toggleCard(header) {
+      const card = header.parentElement;
+      const content = card.querySelector('.cmd-content');
+      const indicator = header.querySelector('.cmd-indicator');
+      
+      if (card.classList.contains('active')) {
+        card.classList.remove('active');
+        content.style.maxHeight = null;
+        content.style.padding = "0 15px";
+        indicator.textContent = "+";
+      } else {
+        // First collapse all others if you want only one open at a time (Optional)
+        document.querySelectorAll('.cmd-card.active').forEach(function(activeCard) {
+          if (activeCard !== card) {
+            activeCard.classList.remove('active');
+            activeCard.querySelector('.cmd-content').style.maxHeight = null;
+            activeCard.querySelector('.cmd-content').style.padding = "0 15px";
+            activeCard.querySelector('.cmd-indicator').textContent = "+";
+          }
+        });
+
+        card.classList.add('active');
+        content.style.maxHeight = content.scrollHeight + 30 + "px"; // padding offset
+        content.style.padding = "15px";
+        indicator.textContent = "-";
+      }
+    }
+
+    // Client-side Promise-based Copy Utility
+    function copyText(btn) {
+      const codeTextSpan = btn.previousElementSibling;
+      const textVal = codeTextSpan.textContent.trim();
+
+      navigator.clipboard.writeText(textVal)
+        .then(function() {
+          const originalText = btn.textContent;
+          btn.textContent = "COPIED!";
+          btn.style.color = "var(--neon-green)";
+          btn.style.borderColor = "var(--neon-green)";
+          
+          setTimeout(function() {
+            btn.textContent = originalText;
+            btn.style.color = "";
+            btn.style.borderColor = "";
+          }, 1500);
+        })
+        .catch(function(err) {
+          alert("Clipboard write failed: " + err);
+        });
+    }
+
+    // Real-time keyword filter search engine
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      const filter = e.target.value.toLowerCase().trim();
+      const cards = document.querySelectorAll('.cmd-card');
+
+      cards.forEach(function(card) {
+        const title = card.getAttribute('data-title').toLowerCase();
+        const desc = card.querySelector('.cmd-desc').textContent.toLowerCase();
+
+        if (title.includes(filter) || desc.includes(filter)) {
+          card.style.display = "";
+        } else {
+          card.style.display = "none";
+          // If the collapsed card was active, shut it down
+          if (card.classList.contains('active')) {
+            card.classList.remove('active');
+            const content = card.querySelector('.cmd-content');
+            content.style.maxHeight = null;
+            content.style.padding = "0 15px";
+            card.querySelector('.cmd-indicator').textContent = "+";
+          }
+        }
+      });
+    });
+  </script>
 </body>
 </html>
