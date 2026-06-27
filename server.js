@@ -10,7 +10,6 @@ app.set("trust proxy", true);
 const PORT = process.env.PORT || 10000;
 var lastReq = 0;
 
-
 // Middleware
 app.use((req, res, next) => {
     try {
