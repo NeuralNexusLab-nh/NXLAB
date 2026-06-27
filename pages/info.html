@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INFORMATION // NXLAB CONSOLE</title>
+  <style>
+    :root {
+      --neon-green: #00ff66;
+      --neon-blue: #00e5ff;
+      --bg-dark: #050811;
+      --terminal-bg: rgba(5, 12, 28, 0.85);
+      --font-stack: 'Courier New', Courier, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--neon-green);
+      font-family: var(--font-stack);
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between; /* Keeps footer at bottom */
+      position: relative;
+      padding: 40px 20px 20px 20px;
+    }
+
+    /* CRT Scanline Overlay */
+    body::before {
+      content: " ";
+      display: block;
+      position: fixed;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      background-size: 100% 4px, 6px 100%;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Screen Flicker Animation */
+    @keyframes flicker {
+      0% { opacity: 0.98; }
+      50% { opacity: 1; }
+      100% { opacity: 0.99; }
+    }
+
+    body {
+      animation: flicker 0.15s infinite;
+    }
+
+    /* Top Right Logo (>_) */
+    .logo-container {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: var(--neon-blue);
+      text-decoration: none;
+      text-shadow: 0 0 10px var(--neon-blue), 0 0 20px rgba(0, 229, 255, 0.5);
+      transition: all 0.3s ease;
+      display: inline-block;
+      animation: logoPulse 2s infinite alternate;
+    }
+
+    .logo:hover {
+      color: var(--neon-green);
+      text-shadow: 0 0 15px var(--neon-green), 0 0 30px rgba(0, 255, 102, 0.8);
+      transform: scale(1.1) rotate(-5deg);
+    }
+
+    @keyframes logoPulse {
+      0% { transform: scale(1); opacity: 0.9; }
+      100% { transform: scale(1.05); opacity: 1; }
+    }
+
+    /* Main Container */
+    .container {
+      width: 100%;
+      max-width: 950px;
+      padding: 10px;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: slideUp 0.8s cubic-bezier(0.1, 1, 0.1, 1) forwards;
+      z-index: 5;
+    }
+
+    @keyframes slideUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    header {
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: var(--neon-green);
+      text-shadow: 0 0 10px rgba(0, 255, 102, 0.5);
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+    }
+
+    p.subtitle {
+      color: var(--neon-blue);
+      text-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+      font-size: 1rem;
+    }
+
+    /* Terminal Block for Documentation */
+    .doc-terminal {
+      background: var(--terminal-bg);
+      border: 1px solid var(--neon-blue);
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.05);
+      margin-bottom: 30px;
+    }
+
+    .doc-section-title {
+      color: var(--neon-blue);
+      font-size: 1.4rem;
+      margin-bottom: 15px;
+      border-bottom: 1px dashed rgba(0, 229, 255, 0.3);
+      padding-bottom: 8px;
+    }
+
+    .command-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    /* Command Row with glowing effect on hover */
+    .command-row {
+      display: flex;
+      flex-direction: column;
+      background: rgba(5, 12, 28, 0.5);
+      border: 1px solid rgba(0, 229, 255, 0.15);
+      padding: 15px;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .command-row:hover {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 15px rgba(0, 255, 102, 0.15);
+      transform: translateX(5px);
+    }
+
+    .cmd-name {
+      color: var(--neon-blue);
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .command-row:hover .cmd-name {
+      color: var(--neon-green);
+    }
+
+    .cmd-desc {
+      color: #a0c0b0;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .cmd-usage {
+      color: rgba(0, 229, 255, 0.6);
+      font-size: 0.8rem;
+    }
+
+    /* Back Home Button */
+    .back-home {
+      display: flex;
+      justify-content: center;
+    }
+
+    .btn-back {
+      padding: 12px 24px;
+      background: transparent;
+      border: 1px solid rgba(0, 229, 255, 0.5);
+      color: rgba(0, 229, 255, 0.7);
+      font-family: var(--font-stack);
+      font-size: 0.9rem;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+      border-color: var(--neon-blue);
+      color: var(--neon-blue);
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Footer Copyright NeuralNexusLab */
+    footer {
+      width: 100%;
+      text-align: center;
+      padding: 20px 0;
+      color: rgba(0, 229, 255, 0.4);
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      z-index: 5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Right Logo -->
+  <div class="logo-container">
+    <a href="/" class="logo">&gt;_</a>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>CORE COMMANDS MANUAL</h1>
+      <p class="subtitle">Complete reference manual for NXLAB Console v1.0.0 hosted on nxlab.nett.to</p>
+    </header>
+
+    <div class="doc-terminal">
+      <!-- Network Section -->
+      <h2 class="doc-section-title">// NETWORK UTILITIES</h2>
+      <div class="command-list">
+        <div class="command-row">
+          <div class="cmd-name">ip</div>
+          <div class="cmd-desc">Retrieve the client's public IP address as recorded by the server node.</div>
+          <div class="cmd-usage">Usage: ip</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-name">http</div>
+          <div class="cmd-desc">Sends an HTTP request to the designated host. Defaults to secure HTTPS. Automatically falls back to standard HTTP if secure handshake fails.</div>
+          <div class="cmd-usage">Usage: http [url_or_domain]</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-name">tcp</div>
+          <div class="cmd-desc">Attempts to open a direct raw TCP socket stream to a specified host and port to check port availability. Timeout at 3000ms.</div>
+          <div class="cmd-usage">Usage: tcp [host] [port]</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-name">udp</div>
+          <div class="cmd-desc">Dispatches an arbitrary UDP datagram containing a custom text payload to a targeted remote port.</div>
+          <div class="cmd-usage">Usage: udp [host] [port] [message_payload]</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-name">ping</div>
+          <div class="cmd-desc">Executes ICMP Echo requests to a targeted host to evaluate latency and packet delivery. Fully sanitized against injection vectors.</div>
+          <div class="cmd-usage">Usage: ping [host]</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-name">nslookup</div>
+          <div class="cmd-desc">Performs high-speed DNS hostname resolution utilizing Node's native lookup bindings. No sub-process execution.</div>
+          <div class="cmd-usage">Usage: nslookup [domain]</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-name">whois</div>
+          <div class="cmd-desc">Queries registrar and registry WHOIS records for targeted domain ownership information.</div>
+          <div class="cmd-usage">Usage: whois [domain_or_ip]</div>
+        </div>
+      </div>
+
+      <!-- Security / Crypto Section -->
+      <h2 class="doc-section-title">// CRYPTO & ENCODING</h2>
+      <div class="command-list">
+        <div class="command-row">
+          <div class="cmd-name">base64ec</div>
+          <div class="cmd-desc">Converts raw text into a Base64-encoded string representation.</div>
+          <div class="cmd-usage">Usage: base64ec [raw_text_payload]</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-name">base64dc</div>
+          <div class="cmd-desc">Decodes a valid Base64 string back into standard human-readable format. Output is sanitarily escaped.</div>
+          <div class="cmd-usage">Usage: base64dc [base64_encoded_payload]</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-name">md5</div>
+          <div class="cmd-desc">Generates a secure 128-bit cryptographic MD5 hash signature of the input text payload.</div>
+          <div class="cmd-usage">Usage: md5 [text_to_hash]</div>
+        </div>
+      </div>
+
+      <!-- Math Section -->
+      <h2 class="doc-section-title">// MATHEMATICAL ENGINE</h2>
+      <div class="command-list">
+        <div class="command-row">
+          <div class="cmd-name">sum</div>
+          <div class="cmd-desc">Performs floating-point addition of two input arguments.</div>
+          <div class="cmd-usage">Usage: sum [num1] [num2]</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-name">subtract</div>
+          <div class="cmd-desc">Performs floating-point subtraction of the second argument from the first.</div>
+          <div class="cmd-usage">Usage: subtract [num1] [num2]</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-name">multiply</div>
+          <div class="cmd-desc">Performs floating-point multiplication of two input arguments.</div>
+          <div class="cmd-usage">Usage: multiply [num1] [num2]</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-name">divide</div>
+          <div class="cmd-desc">Performs floating-point division. Division by zero is rejected.</div>
+          <div class="cmd-usage">Usage: divide [num1] [num2]</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-name">power</div>
+          <div class="cmd-desc">Raises a base floating-point number to the power of the specified exponent.</div>
+          <div class="cmd-usage">Usage: power [base] [exponent]</div>
+        </div>
+      </div>
+
+      <!-- General Section -->
+      <h2 class="doc-section-title">// UTILITIES</h2>
+      <div class="command-list">
+        <div class="command-row">
+          <div class="cmd-name">echo</div>
+          <div class="cmd-desc">Echoes back the entered text payload. Output is safely sanitized.</div>
+          <div class="cmd-usage">Usage: echo [message]</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-name">textarea</div>
+          <div class="cmd-desc">Formats multi-line or single-line text output neatly inside a retro terminal ASCII mockup box.</div>
+          <div class="cmd-usage">Usage: textarea [your_custom_text]</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back to Terminal -->
+    <div class="back-home">
+      <a href="/" class="btn-back">&lt;&lt; BACK TO TERMINAL</a>
+    </div>
+  </div>
+
+  <!-- Global Footer -->
+  <footer>
+    &copy; 2026 NeuralNexusLab. All rights reserved.
+  </footer>
+
+</body>
+</html>
