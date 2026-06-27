@@ -105,11 +105,6 @@ const apifunc = {
       return;
     }
 
-    if (!isSafeHost(host)) {
-      resp.send("Error: Access Denied. Host contains illegal characters.");
-      return;
-    }
-
     const net = require("net");
     const client = new net.Socket();
     client.setTimeout(3000);
@@ -137,11 +132,6 @@ const apifunc = {
 
     if (!host || isNaN(port)) {
       resp.send("Error: Usage is 'udp [host] [port] [message]'");
-      return;
-    }
-
-    if (!isSafeHost(host)) {
-      resp.send("Error: Access Denied. Host contains illegal characters.");
       return;
     }
 
@@ -248,11 +238,6 @@ const apifunc = {
       return;
     }
 
-    if (!isSafeHost(host)) {
-      resp.send("Error: Access Denied. Host contains illegal characters.");
-      return;
-    }
-
     const dns = require("dns");
     dns.resolve(host, (err, addresses) => {
       if (err) {
@@ -325,10 +310,6 @@ const apifunc = {
 
   "ipinfo": (reqo, resp, data) => {
     const ip = data.trim();
-    if (ip && !isSafeHost(ip)) {
-      resp.send("Error: Invalid IP address format.");
-      return;
-    }
     fetch(`http://ip-api.com/json/${ip}`)
       .then((res) => {
         return res.json();
@@ -348,7 +329,7 @@ const apifunc = {
 
   "wttr": (reqo, resp, data) => {
     const city = data.trim();
-    if (city && !isSafeHost(city)) {
+    if (city) {
       resp.send("Error: Invalid location format.");
       return;
     }
