@@ -293,6 +293,10 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "pages", "index.html"));
 });
 
+app.get("/devtools.js", (req, res) => {
+  res.sendFile(path.join(__dirname, "devtools.js"));
+});
+
 app.get("/download", (req, res) => {
   res.sendFile(path.join(__dirname, "pages", "download.html"));
 });
