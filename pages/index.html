@@ -28,7 +28,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between; /* Makes space for footer at the bottom */
+      justify-content: space-between; /* Keeps footer at bottom */
       position: relative;
       padding: 40px 20px 20px 20px;
     }
@@ -219,8 +219,11 @@
       border-radius: 3px;
     }
 
+    /* Critical Output Style: Support raw HTML safe linebreaks */
     .output-line {
       line-height: 1.4;
+      white-space: pre-wrap; /* Keeps multiline output (http, textarea) formatted properly! */
+      word-break: break-all;
       animation: lineAppear 0.2s ease-out forwards;
     }
 
@@ -332,7 +335,7 @@
       </div>
       
       <div class="terminal-body" id="consoleOutput">
-        <!-- Giant ASCII Art Console Header -->
+        <!-- Clean ASCII Art Console Header -->
         <pre class="ascii-art">
  _   _  __  __ _        _     ____  
 | \ | | \ \/ /| |      / \   | __ ) 
@@ -372,7 +375,7 @@
     function appendLine(text, cssClass = '') {
       const line = document.createElement('div');
       line.className = `output-line ${cssClass}`;
-      line.textContent = text;
+      line.textContent = text; // Safely escapes XSS payloads automatically
       consoleOutput.appendChild(line);
       scrollToBottom();
     }
@@ -404,23 +407,22 @@
         })
         .then(res => {
           if (!res.ok) {
-            return res.json().then(err => { throw new Error(err.error || 'Server error') });
+            // If the server returns a non-200 status (e.g. 404, 429), parse the JSON error
+            return res.json()
+              .then(err => {
+                throw new Error(err.error || 'Server error');
+              })
+              .catch(() => {
+                // Fail-safe in case the error response is not JSON
+                throw new Error(`HTTP Error ${res.status}`);
+              });
           }
-          return res.json();
+          // If 200 OK, read raw plain text response directly from the server
+          return res.text();
         })
-        .then(resData => {
-          if (cmd === 'http') {
-            const httpResult = resData.result;
-            appendLine(`[Status] ${httpResult.statusCode}`, 'color-green');
-            appendLine(`[Headers]`, 'color-blue');
-            Object.entries(httpResult.headers).forEach(([key, val]) => {
-              appendLine(`  ${key}: ${val}`);
-            });
-            appendLine(`[Body]`, 'color-blue');
-            appendLine(httpResult.body.length > 500 ? httpResult.body.slice(0, 500) + '\n... (truncated)' : httpResult.body);
-          } else {
-            appendLine(resData.result || JSON.stringify(resData));
-          }
+        .then(textResult => {
+          // Render the formatted response text directly onto the console
+          appendLine(textResult);
         })
         .catch(err => {
           appendLine(`ERROR: ${err.message}`, 'color-error');
