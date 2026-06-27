@@ -3,144 +3,430 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NXLAB CONSOLE</title>
+  <title>NXLAB CONSOLE // NEXT-GEN DEVTOOL</title>
   <style>
-    /* 全域駭客風樣式 */
+    :root {
+      --neon-green: #00ff66;
+      --neon-blue: #00e5ff;
+      --bg-dark: #050811;
+      --terminal-bg: rgba(5, 12, 28, 0.85);
+      --font-stack: 'Courier New', Courier, monospace;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Courier New', Courier, monospace;
     }
 
     body {
-      background-color: #050806;
-      color: #39FF14; /* 經典亮綠 */
-      height: 100vh;
-      overflow: hidden;
+      background-color: var(--bg-dark);
+      color: var(--neon-green);
+      font-family: var(--font-stack);
+      overflow-x: hidden;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      align-items: center;
+      justify-content: space-between; /* Makes space for footer at the bottom */
       position: relative;
+      padding: 40px 20px 20px 20px;
     }
 
-    /* CRT 螢幕掃描線特效 */
+    /* CRT Scanline Overlay Effect */
     body::before {
       content: " ";
       display: block;
-      position: absolute;
+      position: fixed;
       top: 0; left: 0; bottom: 0; right: 0;
       background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-      z-index: 10;
       background-size: 100% 4px, 6px 100%;
+      z-index: 10;
       pointer-events: none;
     }
 
-    /* 右上角 Logo */
-    .header {
+    /* Screen Flicker Animation */
+    @keyframes flicker {
+      0% { opacity: 0.98; }
+      50% { opacity: 1; }
+      100% { opacity: 0.99; }
+    }
+
+    body {
+      animation: flicker 0.15s infinite;
+    }
+
+    /* Top Right Logo (>_) */
+    .logo-container {
       position: absolute;
       top: 20px;
-      right: 20px;
-      z-index: 20;
+      right: 30px;
+      z-index: 100;
     }
 
     .logo {
-      color: #00E5FF; /* 淺藍色 */
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-weight: bold;
+      color: var(--neon-blue);
       text-decoration: none;
-      text-shadow: 0 0 10px #00E5FF, 0 0 20px #00E5FF;
+      text-shadow: 0 0 10px var(--neon-blue), 0 0 20px rgba(0, 229, 255, 0.5);
       transition: all 0.3s ease;
       display: inline-block;
-      cursor: pointer;
+      animation: logoPulse 2s infinite alternate;
     }
 
     .logo:hover {
-      color: #39FF14;
-      text-shadow: 0 0 10px #39FF14, 0 0 20px #39FF14;
-      transform: scale(1.1);
+      color: var(--neon-green);
+      text-shadow: 0 0 15px var(--neon-green), 0 0 30px rgba(0, 255, 102, 0.8);
+      transform: scale(1.1) rotate(-5deg);
     }
 
-    /* 終端機主視窗 */
+    @keyframes logoPulse {
+      0% { transform: scale(1); opacity: 0.9; }
+      100% { transform: scale(1.05); opacity: 1; }
+    }
+
+    /* Main Container with Entrance Animation */
+    .container {
+      width: 100%;
+      max-width: 850px;
+      padding: 10px;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: slideUp 0.8s cubic-bezier(0.1, 1, 0.1, 1) forwards;
+      z-index: 5;
+    }
+
+    @keyframes slideUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Animated Header */
+    header {
+      margin-bottom: 25px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      color: var(--neon-green);
+      text-shadow: 0 0 10px rgba(0, 255, 102, 0.5);
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+      animation: titleGlitch 5s infinite;
+    }
+
+    @keyframes titleGlitch {
+      0%, 95%, 100% { text-shadow: 0 0 10px rgba(0, 255, 102, 0.5); }
+      96% { text-shadow: -3px 0 var(--neon-blue), 3px 0 red; }
+      97% { text-shadow: 3px -3px var(--neon-blue), -3px 3px var(--neon-green); }
+      98% { text-shadow: -3px 3px var(--neon-blue), 3px -3px red; }
+    }
+
+    p.subtitle {
+      color: var(--neon-blue);
+      text-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+      font-size: 1rem;
+    }
+
+    /* Terminal Interface */
     .terminal {
+      background: var(--terminal-bg);
+      border: 2px solid var(--neon-blue);
+      border-radius: 8px;
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.15), inset 0 0 15px rgba(0, 229, 255, 0.05);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 420px;
+      margin-bottom: 25px;
+      transition: border-color 0.5s ease, box-shadow 0.5s ease;
+    }
+
+    .terminal:focus-within {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 35px rgba(0, 255, 102, 0.25);
+    }
+
+    .terminal-header {
+      background: rgba(0, 229, 255, 0.1);
+      padding: 8px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+    }
+
+    .terminal-title {
+      font-size: 0.8rem;
+      color: var(--neon-blue);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--neon-blue);
+      opacity: 0.5;
+    }
+
+    /* Console Screen Output */
+    .terminal-body {
       flex: 1;
-      padding: 40px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
+      padding: 20px;
       overflow-y: auto;
-      z-index: 1;
-    }
-
-    /* 歡迎標題動畫 */
-    .welcome-text {
-      color: #00E5FF;
-      text-shadow: 0 0 8px #00E5FF;
-      margin-bottom: 20px;
-      white-space: pre-line;
-      animation: glow 2s ease-in-out infinite alternate;
-    }
-
-    /* 歷史輸出區 */
-    .output-log {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 12px;
+      font-size: 0.95rem;
     }
 
-    .log-item {
+    /* ASCII Art Styling with Wrapping Protection */
+    .ascii-art {
+      font-family: var(--font-stack);
+      white-space: pre;
+      color: var(--neon-blue);
+      text-shadow: 0 0 5px var(--neon-blue);
+      line-height: 1.15;
+      font-size: 0.65rem; /* Resizes slightly to fit screens nicely */
+      overflow-x: auto;
+      margin-bottom: 5px;
+      pointer-events: none;
+    }
+
+    @media (min-width: 600px) {
+      .ascii-art {
+        font-size: 0.8rem;
+      }
+    }
+
+    /* Scrollbar Styling */
+    .terminal-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    .terminal-body::-webkit-scrollbar-thumb {
+      background: var(--neon-blue);
+      border-radius: 3px;
+    }
+
+    .output-line {
       line-height: 1.4;
-      word-break: break-all;
+      animation: lineAppear 0.2s ease-out forwards;
     }
 
-    .command-sent {
-      color: #00E5FF;
+    @keyframes lineAppear {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
-    .response-success {
-      color: #39FF14;
-      text-shadow: 0 0 3px #39FF14;
-    }
+    .color-blue { color: var(--neon-blue); text-shadow: 0 0 5px rgba(0, 229, 255, 0.5); }
+    .color-green { color: var(--neon-green); text-shadow: 0 0 5px rgba(0, 255, 102, 0.5); }
+    .color-error { color: #ff3366; text-shadow: 0 0 5px rgba(255, 51, 102, 0.5); }
 
-    .response-error {
-      color: #FF1744;
-      text-shadow: 0 0 5px #FF1744;
-    }
-
-    /* 指令輸入區 */
+    /* Input Prompter */
     .input-line {
       display: flex;
       align-items: center;
-      margin-top: 15px;
+      padding: 15px;
+      background: rgba(5, 12, 28, 0.9);
+      border-top: 1px solid rgba(0, 229, 255, 0.1);
     }
 
     .prompt {
-      color: #00E5FF;
+      color: var(--neon-blue);
       margin-right: 10px;
       font-weight: bold;
-      text-shadow: 0 0 5px #00E5FF;
     }
 
-    .terminal-input {
+    .cmd-input {
+      flex: 1;
       background: transparent;
       border: none;
       outline: none;
-      color: #39FF14;
-      font-family: inherit;
+      color: var(--neon-green);
+      font-family: var(--font-stack);
       font-size: 1rem;
-      flex: 1;
-      caret-color: #39FF14; /* 游標顏色 */
-      text-shadow: 0 0 3px #39FF14;
+      caret-color: var(--neon-green);
     }
 
-    /* 動畫效果定義 */
-    @keyframes glow {
-      from {
-        text-shadow: 0 0 5px #00E5FF, 0 0 10px #00E5FF;
-      }
-      to {
-        text-shadow: 0 0 10px #00E5FF, 0 0 20px #00E5FF, 0 0 30px #00E5FF;
-      }
+    /* Action Buttons with Hacker Glow & Animations */
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
     }
 
-    /* 捲軸美化 */
-    ::-webkit
+    .btn {
+      padding: 12px 24px;
+      background: transparent;
+      border: 1px solid var(--neon-blue);
+      color: var(--neon-blue);
+      font-family: var(--font-stack);
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.1);
+    }
+
+    .btn:hover {
+      background: rgba(0, 229, 255, 0.15);
+      color: #fff;
+      border-color: var(--neon-green);
+      box-shadow: 0 0 20px rgba(0, 255, 102, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    /* Global Footer with Copyright NeuralNexusLab */
+    footer {
+      width: 100%;
+      text-align: center;
+      padding: 20px 0;
+      color: rgba(0, 229, 255, 0.4);
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      z-index: 5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Right Logo -->
+  <div class="logo-container">
+    <a href="/" class="logo">&gt;_</a>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>NXLAB CONSOLE</h1>
+      <p class="subtitle">Next-generation lightweight console for developers</p>
+    </header>
+
+    <!-- Terminal Emulator Web Interface -->
+    <div class="terminal">
+      <div class="terminal-header">
+        <span class="terminal-title">Interactive Web Shell v1.0.0</span>
+        <div class="dots">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+      
+      <div class="terminal-body" id="consoleOutput">
+        <!-- Giant ASCII Art Console Header -->
+        <pre class="ascii-art">
+ _   _  __  __ _        _     ____  
+| \ | | \ \/ /| |      / \   | __ ) 
+|  \| |  \  / | |     / _ \  |  _ \ 
+| |\  |  /  \ | |___ / ___ \ | |_) |
+|_| \_| /_/\_\|_____/_/   \_\|____/ 
+        </pre>
+        <div class="output-line color-green">SYSTEM // CONNECTION SECURE // READY FOR INPUT...</div>
+      </div>
+
+      <div class="input-line">
+        <span class="prompt">nxlab_shell&gt;</span>
+        <input type="text" id="cmdInput" class="cmd-input" placeholder="Type a command..." autofocus autocomplete="off">
+      </div>
+    </div>
+
+    <!-- Actions Row -->
+    <div class="actions">
+      <a href="/download" class="btn">DOWNLOAD CLIENTS</a>
+      <a href="/info" class="btn">MORE INFORMATION</a>
+    </div>
+  </div>
+
+  <!-- Global Footer -->
+  <footer>
+    &copy; 2026 NeuralNexusLab. All rights reserved.
+  </footer>
+
+  <script>
+    const cmdInput = document.getElementById('cmdInput');
+    const consoleOutput = document.getElementById('consoleOutput');
+
+    function scrollToBottom() {
+      consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    }
+
+    function appendLine(text, cssClass = '') {
+      const line = document.createElement('div');
+      line.className = `output-line ${cssClass}`;
+      line.textContent = text;
+      consoleOutput.appendChild(line);
+      scrollToBottom();
+    }
+
+    cmdInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const fullInput = cmdInput.value.trim();
+        cmdInput.value = '';
+
+        if (!fullInput) return;
+
+        appendLine(`nxlab_shell> ${fullInput}`, 'color-blue');
+
+        const spaceIndex = fullInput.indexOf(' ');
+        let cmd = fullInput;
+        let data = '';
+
+        if (spaceIndex !== -1) {
+          cmd = fullInput.slice(0, spaceIndex);
+          data = fullInput.slice(spaceIndex + 1);
+        }
+
+        fetch('/api', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ cmd: cmd, data: data })
+        })
+        .then(res => {
+          if (!res.ok) {
+            return res.json().then(err => { throw new Error(err.error || 'Server error') });
+          }
+          return res.json();
+        })
+        .then(resData => {
+          if (cmd === 'http') {
+            const httpResult = resData.result;
+            appendLine(`[Status] ${httpResult.statusCode}`, 'color-green');
+            appendLine(`[Headers]`, 'color-blue');
+            Object.entries(httpResult.headers).forEach(([key, val]) => {
+              appendLine(`  ${key}: ${val}`);
+            });
+            appendLine(`[Body]`, 'color-blue');
+            appendLine(httpResult.body.length > 500 ? httpResult.body.slice(0, 500) + '\n... (truncated)' : httpResult.body);
+          } else {
+            appendLine(resData.result || JSON.stringify(resData));
+          }
+        })
+        .catch(err => {
+          appendLine(`ERROR: ${err.message}`, 'color-error');
+        });
+      }
+    });
+  </script>
+</body>
+</html>
