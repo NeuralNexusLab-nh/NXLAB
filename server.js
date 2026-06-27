@@ -32,23 +32,6 @@ const isSafeHost = (host) => {
   return /^[a-zA-Z0-9.-]+$/.test(host);
 };
 
-// 2. HTML 逸出：防護 XSS 攻擊
-const escapeHtml = (text) => {
-  if (typeof text !== 'string') {
-    return text;
-  }
-  return text.replace(/[&<>"']/g, (m) => {
-    switch (m) {
-      case '&': return '&amp;';
-      case '<': return '&lt;';
-      case '>': return '&gt;';
-      case '"': return '&quot;';
-      case "'": return '&#x27;';
-      default: return m;
-    }
-  });
-};
-
 // ==================== API 核心功能對照表 ====================
 
 const apifunc = {
@@ -58,10 +41,9 @@ const apifunc = {
     resp.send(clientIp);
   },
 
-  // 2. 文字回顯 (Echo)
+  // 2. 文字回顯 (Echo) - 直接回傳原始資料，由前端 textContent 安全渲染
   "echo": (reqo, resp, data) => {
-    const safeOutput = escapeHtml(data);
-    resp.send(safeOutput);
+    resp.send(data);
   },
 
   // 3. Base64 編碼
@@ -70,14 +52,13 @@ const apifunc = {
     resp.send(encoded);
   },
 
-  // 4. Base64 解碼
+  // 4. Base64 解碼 - 直接回傳原始資料
   "base64dc": (reqo, resp, data) => {
     const decoded = Buffer.from(data, "base64").toString("utf-8");
-    const safeDecoded = escapeHtml(decoded);
-    resp.send(safeDecoded);
+    resp.send(decoded);
   },
 
-  // 5. HTTP 探測 (預設 HTTPS，失敗自動降級 HTTP)
+  // 5. HTTP 探測 (預設 HTTPS，失敗自動降級 HTTP) - 不再進行 escapeHtml
   "http": (reqo, resp, data) => {
     let url = data.trim();
     if (!url) {
@@ -101,8 +82,7 @@ const apifunc = {
 
           resObj.text()
             .then((bodyText) => {
-              const safeBody = escapeHtml(bodyText);
-              const truncatedBody = safeBody.length > 500 ? safeBody.slice(0, 500) + "\n... (truncated)" : safeBody;
+              const truncatedBody = bodyText.length > 500 ? bodyText.slice(0, 500) + "\n... (truncated)" : bodyText;
               output += truncatedBody;
               resp.send(output);
             })
@@ -328,7 +308,7 @@ const apifunc = {
     });
   },
 
-  // 16. 網路：Whois (利用 execFile 安全執行)
+  // 16. 網路：Whois (利用 execFile 安全執行) - 直接回傳原始內容
   "whois": (reqo, resp, data) => {
     const target = data.trim().split(/\s+/)[0];
 
@@ -348,20 +328,18 @@ const apifunc = {
         resp.send(`WHOIS Error: ${stderr || stdout || "Ensure 'whois' utility is installed on the hosting server."}`);
         return;
       }
-      const safeStdout = escapeHtml(stdout);
-      resp.send(safeStdout);
+      resp.send(stdout);
     });
   },
 
-  // 17. 輔助：Textarea 視覺框 (將輸入包裝在一個精美的 ASCII Box 中)
+  // 17. 輔助：Textarea 視覺框 (包裝原始資料)
   "textarea": (reqo, resp, data) => {
     if (!data) {
       resp.send("Error: Usage is 'textarea [text]'");
       return;
     }
-    const safeText = escapeHtml(data);
     const border = "+----------------------------------------------------+";
-    const paddedLines = safeText.split("\n").map((line) => {
+    const paddedLines = data.split("\n").map((line) => {
       return `| ${line.padEnd(50).slice(0, 50)} |`;
     });
     const output = `${border}\n${paddedLines.join("\n")}\n${border}`;
