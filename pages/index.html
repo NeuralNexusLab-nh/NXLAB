@@ -347,7 +347,7 @@
       </div>
 
       <div class="input-line">
-        <span class="prompt">nxlab_shell&gt;</span>
+        <span class="prompt">&gt;</span>
         <input type="text" id="cmdInput" class="cmd-input" placeholder="Type a command..." autofocus autocomplete="off">
       </div>
     </div>
@@ -387,7 +387,7 @@
 
         if (!fullInput) return;
 
-        appendLine(`nxlab_shell> ${fullInput}`, 'color-blue');
+        appendLine(`> ${fullInput}`, 'color-blue');
 
         const spaceIndex = fullInput.indexOf(' ');
         let cmd = fullInput;
