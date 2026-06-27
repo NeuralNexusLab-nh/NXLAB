@@ -408,6 +408,7 @@ app.post("/api", (req, res) => {
     }
   } else {
     res.status(429).json({"error": "Too many requests."});
+  }
 });
 
 app.all("*", (req, res) => {
