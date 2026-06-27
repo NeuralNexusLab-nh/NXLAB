@@ -329,10 +329,6 @@ const apifunc = {
 
   "wttr": (reqo, resp, data) => {
     const city = data.trim();
-    if (city) {
-      resp.send("Error: Invalid location format.");
-      return;
-    }
     fetch(`https://wttr.in/${city}?An`)
       .then((res) => {
         return res.text();
