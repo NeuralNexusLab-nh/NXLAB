@@ -249,29 +249,6 @@ const apifunc = {
     resp.send(hash);
   },
 
-  // 14. 網路：Ping (利用 execFile 安全執行外部指令)
-  "ping": (reqo, resp, data) => {
-    const host = data.trim().split(/\s+/)[0];
-
-    if (!host) {
-      resp.send("Error: Usage is 'ping [host]'");
-      return;
-    }
-
-    const { execFile } = require("child_process");
-    const isWin = process.platform === "win32";
-    const cmd = isWin ? "ping" : "ping";
-    const args = isWin ? ["-n", "3", host] : ["-c", "3", host];
-
-    execFile(cmd, args, (error, stdout, stderr) => {
-      if (error) {
-        resp.send(`Ping Error: ${stderr || stdout || error.message}`);
-        return;
-      }
-      resp.send(stdout);
-    });
-  },
-
   // 15. 網路：DNS Lookup (原生 dns 模組，不依賴系統 nslookup，100% 免疫 Command Injection)
   "nslookup": (reqo, resp, data) => {
     const host = data.trim().split(/\s+/)[0];
