@@ -7,15 +7,15 @@ const app = express();
 app.use(express.json());
 app.set("trust proxy", true);
 
-const PORT = process.env.PORT || 443;
+const PORT = process.env.PORT || 10000;
 
 // Middleware
 // UNDEVELOPED ID6
 
 // API Functions
 const apifunc = {
-  "ip": (data) => {return req.ip},
-  "echo": (data) => {return txt}
+  "ip": (reqo, resp, data) => {resp.send(reqo.ip)},
+  "echo": (reqo, resp, data) => {resp.send(data)}
 }
 
 app.get("/", (req, res) => {
@@ -29,17 +29,17 @@ app.get("/download", (req, res) => {
 });
 
 app.get("/download/windows", (req, res) => {
-  res.sendFile(path.join(__dirname, "files", "nxlab.exe"));
+  res.download(path.join(__dirname, "files", "nxlab.exe"));
   // UNDEVELOPED ID3
 });
 
 app.get("/download/linux", (req, res) => {
-  res.sendFile(path.join(__dirname, "files", "nxlab.sh"));
+  res.download(path.join(__dirname, "files", "nxlab.sh"));
   // UNDEVELOPED ID4
 });
 
 app.get("/download/python", (req, res) => {
-  res.sendFile(path.join(__dirname, "files", "nxlab.py"));
+  res.download(path.join(__dirname, "files", "nxlab.py"));
   // UNDEVELOPED ID5
 });
 
@@ -47,7 +47,7 @@ app.post("/api", (req, res) => {
   const cmd = req.body.cmd;
   const data = req.body.data;
   if (apifunc[cmd]) {
-    apifunc[cmd](data);
+    apifunc[cmd](req, res, data);
   } else {
     res.status(404).json({"error": "Unknown function."});
   }
