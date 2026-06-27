@@ -33,7 +33,6 @@ app.get("/info", (req, res) => {
 
 app.get("/download/windows", (req, res) => {
   res.download(path.join(__dirname, "nxlab.exe"));
-  // UNDEVELOPED ID3
 });
 
 app.get("/download/linux", (req, res) => {
@@ -43,7 +42,6 @@ app.get("/download/linux", (req, res) => {
 
 app.get("/download/python", (req, res) => {
   res.download(path.join(__dirname, "nxlab.py"));
-  // UNDEVELOPED ID5
 });
 
 app.post("/api", (req, res) => {
