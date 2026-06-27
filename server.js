@@ -367,7 +367,6 @@ app.get("/download/windows", (req, res) => {
 
 app.get("/download/linux", (req, res) => {
   res.download(path.join(__dirname, "nxlab.sh"));
-  // UNDEVELOPED ID4
 });
 
 app.get("/download/python", (req, res) => {
