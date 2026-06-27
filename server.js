@@ -28,6 +28,11 @@ app.get("/download", (req, res) => {
   // UNDEVELOPED ID2
 });
 
+app.get("/info", (req, res) => {
+  res.sendFile(path.join(__dirname, "pages", "info.html"));
+  // UNDEVELOPED ID8
+});
+
 app.get("/download/windows", (req, res) => {
   res.download(path.join(__dirname, "files", "nxlab.exe"));
   // UNDEVELOPED ID3
