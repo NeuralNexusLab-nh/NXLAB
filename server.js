@@ -25,12 +25,6 @@ app.use((req, res, next) => {
 });
 
 // API Functions
-// ==================== 安全防護輔助函式 ====================
-
-// 1. 白名單檢查：僅允許安全的 Domain 或 IP 格式，防護 Command Injection
-const isSafeHost = (host) => {
-  return /^[a-zA-Z0-9.-]+$/.test(host);
-};
 
 // ==================== API 核心功能對照表 ====================
 
@@ -265,11 +259,6 @@ const apifunc = {
       return;
     }
 
-    if (!isSafeHost(host)) {
-      resp.send("Error: Access Denied. Host contains illegal characters.");
-      return;
-    }
-
     const { execFile } = require("child_process");
     const isWin = process.platform === "win32";
     const cmd = isWin ? "ping" : "ping";
@@ -293,11 +282,6 @@ const apifunc = {
       return;
     }
 
-    if (!isSafeHost(host)) {
-      resp.send("Error: Access Denied. Host contains illegal characters.");
-      return;
-    }
-
     const dns = require("dns");
     dns.resolve(host, (err, addresses) => {
       if (err) {
@@ -308,31 +292,7 @@ const apifunc = {
     });
   },
 
-  // 16. 網路：Whois (利用 execFile 安全執行) - 直接回傳原始內容
-  "whois": (reqo, resp, data) => {
-    const target = data.trim().split(/\s+/)[0];
-
-    if (!target) {
-      resp.send("Error: Usage is 'whois [domain/ip]'");
-      return;
-    }
-
-    if (!isSafeHost(target)) {
-      resp.send("Error: Access Denied. Target contains illegal characters.");
-      return;
-    }
-
-    const { execFile } = require("child_process");
-    execFile("whois", [target], (error, stdout, stderr) => {
-      if (error) {
-        resp.send(`WHOIS Error: ${stderr || stdout || "Ensure 'whois' utility is installed on the hosting server."}`);
-        return;
-      }
-      resp.send(stdout);
-    });
-  },
-
-  // 17. 輔助：Textarea 視覺框 (包裝原始資料)
+  // 16. 輔助：Textarea 視覺框 (包裝原始資料)
   "textarea": (reqo, resp, data) => {
     if (!data) {
       resp.send("Error: Usage is 'textarea [text]'");
