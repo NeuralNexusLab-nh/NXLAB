@@ -20,12 +20,10 @@ const apifunc = {
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "pages", "index.html"));
-  // UNDEVELOPED ID1
 });
 
 app.get("/download", (req, res) => {
   res.sendFile(path.join(__dirname, "pages", "download.html"));
-  // UNDEVELOPED ID2
 });
 
 app.get("/info", (req, res) => {
@@ -60,7 +58,6 @@ app.post("/api", (req, res) => {
 
 app.all("*", (req, res) => {
   res.sendFile(path.join(__dirname, "pages", "404.html"));
-  // UNDEVELOPED ID7
 });
 
 app.listen(PORT, () => {
