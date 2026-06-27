@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOWNLOADS // NXLAB CONSOLE</title>
+  <style>
+    :root {
+      --neon-green: #00ff66;
+      --neon-blue: #00e5ff;
+      --bg-dark: #050811;
+      --terminal-bg: rgba(5, 12, 28, 0.85);
+      --font-stack: 'Courier New', Courier, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--neon-green);
+      font-family: var(--font-stack);
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between; /* Keeps footer at bottom */
+      position: relative;
+      padding: 40px 20px 20px 20px;
+    }
+
+    /* CRT Scanline Overlay */
+    body::before {
+      content: " ";
+      display: block;
+      position: fixed;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      background-size: 100% 4px, 6px 100%;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Screen Flicker Animation */
+    @keyframes flicker {
+      0% { opacity: 0.98; }
+      50% { opacity: 1; }
+      100% { opacity: 0.99; }
+    }
+
+    body {
+      animation: flicker 0.15s infinite;
+    }
+
+    /* Top Right Logo (>_) */
+    .logo-container {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: var(--neon-blue);
+      text-decoration: none;
+      text-shadow: 0 0 10px var(--neon-blue), 0 0 20px rgba(0, 229, 255, 0.5);
+      transition: all 0.3s ease;
+      display: inline-block;
+      animation: logoPulse 2s infinite alternate;
+    }
+
+    .logo:hover {
+      color: var(--neon-green);
+      text-shadow: 0 0 15px var(--neon-green), 0 0 30px rgba(0, 255, 102, 0.8);
+      transform: scale(1.1) rotate(-5deg);
+    }
+
+    @keyframes logoPulse {
+      0% { transform: scale(1); opacity: 0.9; }
+      100% { transform: scale(1.05); opacity: 1; }
+    }
+
+    /* Main Container */
+    .container {
+      width: 100%;
+      max-width: 950px;
+      padding: 10px;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: slideUp 0.8s cubic-bezier(0.1, 1, 0.1, 1) forwards;
+      z-index: 5;
+    }
+
+    @keyframes slideUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    header {
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: var(--neon-green);
+      text-shadow: 0 0 10px rgba(0, 255, 102, 0.5);
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+    }
+
+    p.subtitle {
+      color: var(--neon-blue);
+      text-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+      font-size: 1rem;
+    }
+
+    /* Download Cards Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    /* Card Styling with Hologram Neon Borders */
+    .card {
+      background: var(--terminal-bg);
+      border: 1px solid var(--neon-blue);
+      border-radius: 8px;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.05);
+      min-height: 320px;
+    }
+
+    .card:hover {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 25px rgba(0, 255, 102, 0.2);
+      transform: translateY(-8px);
+    }
+
+    .card-header {
+      margin-bottom: 20px;
+    }
+
+    .platform-title {
+      font-size: 1.5rem;
+      color: var(--neon-blue);
+      text-shadow: 0 0 5px rgba(0, 229, 255, 0.3);
+      margin-bottom: 8px;
+    }
+
+    .platform-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      background: rgba(0, 229, 255, 0.1);
+      padding: 2px 8px;
+      border-radius: 3px;
+      color: var(--neon-blue);
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      text-transform: uppercase;
+    }
+
+    .card:hover .platform-title {
+      color: var(--neon-green);
+      text-shadow: 0 0 10px rgba(0, 255, 102, 0.4);
+    }
+
+    .card:hover .platform-badge {
+      background: rgba(0, 255, 102, 0.1);
+      color: var(--neon-green);
+      border-color: rgba(0, 255, 102, 0.3);
+    }
+
+    .card-body {
+      flex: 1;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #a0c0b0;
+      margin-bottom: 25px;
+    }
+
+    /* Terminal-like Code Snippet in Card */
+    .snippet {
+      background: rgba(0, 0, 0, 0.4);
+      border-left: 3px solid var(--neon-blue);
+      padding: 10px;
+      margin-top: 15px;
+      font-size: 0.8rem;
+      color: #70a0a0;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .card:hover .snippet {
+      border-left-color: var(--neon-green);
+    }
+
+    /* Download Action Button inside Card */
+    .btn-dl {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      border: 1px solid var(--neon-blue);
+      color: var(--neon-blue);
+      text-decoration: none;
+      text-align: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 5px rgba(0, 229, 255, 0.1);
+    }
+
+    .card:hover .btn-dl {
+      border-color: var(--neon-green);
+      color: var(--neon-green);
+      box-shadow: 0 0 15px rgba(0, 255, 102, 0.3);
+      background: rgba(0, 255, 102, 0.05);
+    }
+
+    .btn-dl:hover {
+      background: rgba(0, 255, 102, 0.15) !important;
+      color: #fff !important;
+    }
+
+    /* Back Home Button */
+    .back-home {
+      display: flex;
+      justify-content: center;
+    }
+
+    .btn-back {
+      padding: 12px 24px;
+      background: transparent;
+      border: 1px solid rgba(0, 229, 255, 0.5);
+      color: rgba(0, 229, 255, 0.7);
+      font-family: var(--font-stack);
+      font-size: 0.9rem;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+      border-color: var(--neon-blue);
+      color: var(--neon-blue);
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+      transform: translateX(-5px);
+    }
+
+    /* Footer Copyright NeuralNexusLab */
+    footer {
+      width: 100%;
+      text-align: center;
+      padding: 20px 0;
+      color: rgba(0, 229, 255, 0.4);
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      z-index: 5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Right Logo -->
+  <div class="logo-container">
+    <a href="/" class="logo">&gt;_</a>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>OFFLINE CLIENTS</h1>
+      <p class="subtitle">Deploy NXLAB Console locally on your machine</p>
+    </header>
+
+    <div class="grid">
+      <!-- Windows Client Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="platform-title">Windows</h2>
+          <span class="platform-badge">nxlab.exe</span>
+        </div>
+        <div class="card-body">
+          Packaged binary file for 64-bit Windows environments. Run raw developer command line requests straight from CMD or PowerShell.
+          <div class="snippet">
+            &gt; .\nxlab.exe http example.com
+          </div>
+        </div>
+        <a href="/download/windows" class="btn-dl">DOWNLOAD WIN64</a>
+      </div>
+
+      <!-- Linux Client Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="platform-title">Linux</h2>
+          <span class="platform-badge">nxlab.sh</span>
+        </div>
+        <div class="card-body">
+          Bash bootstrap file for Linux systems. Lightweight installer script to globalize terminal commands.
+          <div class="snippet">
+            $ chmod +x nxlab.sh && ./nxlab.sh
+          </div>
+        </div>
+        <a href="/download/linux" class="btn-dl">DOWNLOAD LINUX SH</a>
+      </div>
+
+      <!-- Python Client Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="platform-title">Python</h2>
+          <span class="platform-badge">nxlab.py</span>
+        </div>
+        <div class="card-body">
+          Cross-platform Python script designed for embedded terminal execution. Needs Python 3.8+ and pip modules.
+          <div class="snippet">
+            $ python nxlab.py http example.com
+          </div>
+        </div>
+        <a href="/download/python" class="btn-dl">DOWNLOAD SCRIPT</a>
+      </div>
+    </div>
+
+    <!-- Back to Terminal -->
+    <div class="back-home">
+      <a href="/" class="btn-back">&lt;&lt; BACK TO TERMINAL</a>
+    </div>
+  </div>
+
+  <!-- Global Footer -->
+  <footer>
+    &copy; 2026 NeuralNexusLab. All rights reserved.
+  </footer>
+
+</body>
+</html>
