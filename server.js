@@ -23,6 +23,22 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use((req, res, next) => {
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', '*');
+    res.setHeader('Access-Control-Allow-Headers', '*');
+
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+
+    next();
+});
+
 // API Functions
 
 // ==================== API 核心功能對照表 ====================
